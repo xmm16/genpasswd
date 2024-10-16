@@ -26,7 +26,7 @@ CC_FLAGS = -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 \
 	-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3 -fstack-clash-protection -fstack-protector-all \
         -fPIE -fcf-protection=full
 
-LNK_FLAGS = -fuse-ld=lld -lsodium -lncursesw -ltcl -Wl,-z,nodlopen -Wl,-z,noexecstack -Wl,-z,separate-code \
+LNK_FLAGS = -fuse-ld=lld -lsodium -lncursesw -Wl,-z,nodlopen -Wl,-z,noexecstack -Wl,-z,separate-code \
 	    -Wl,-z,relro -Wl,-z,now \
 	    -Wl,--as-needed -Wl,--no-copy-dt-needed-entries -fPIC -rtlib=compiler-rt -pie
 

@@ -2,7 +2,6 @@
 #include <sodium.h>
 #include <stdio.h>
 #include <string.h>
-#include <tcl.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -112,10 +111,11 @@ main(void)
 	size_t mlen = 0;
 
 	if (sodium_init() < 0) {
-		panic("\33[0:31m\\]FATAL ERROR: could NOT initialize "
+		printf("\33[0:31m\\]FATAL ERROR: could NOT initialize "
 		      "cryptographic "
 		      "engine, aborting.\33[0m\\]\n"); // IT IS NOT SAFE TO
 						       // RUN
+		return 1;
 	}
 	printf("\033[22;34mCryptographic engine started "
 	       "successfully!\033[0m\n");
