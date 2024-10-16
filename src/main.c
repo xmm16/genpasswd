@@ -5,7 +5,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#define BUFFER_SIZE 128
+#define BUFFER_SIZE 512
 
 const char *
 __scudo_default_options()
@@ -72,7 +72,7 @@ print_hex(const void *buf, const size_t len)
 	char *p;
 
 	b = buf;
-	p = malloc_wrapper(len * 4 + 8);
+	p = malloc_wrapper(len * 2 + 4);
 
 	/* the library supplies a few utility functions like the one below */
 	return sodium_bin2hex(p, len * 2 + 1, b, len);
@@ -86,7 +86,7 @@ print_b64(const void *buf, const size_t len)
 	b = buf;
 	p = malloc_wrapper(len * 4 + 8);
 	return sodium_bin2base64(p, len * 2 + 1, b, len,
-		sodium_base64_VARIANT_URLSAFE);
+		sodium_base64_VARIANT_ORIGINAL);
 }
 
 /*
@@ -112,9 +112,9 @@ main(void)
 
 	if (sodium_init() < 0) {
 		printf("\33[0:31m\\]FATAL ERROR: could NOT initialize "
-		      "cryptographic "
-		      "engine, aborting.\33[0m\\]\n"); // IT IS NOT SAFE TO
-						       // RUN
+		       "cryptographic "
+		       "engine, aborting.\33[0m\\]\n"); // IT IS NOT SAFE TO
+							// RUN
 		return 1;
 	}
 	printf("\033[22;34mCryptographic engine started "
