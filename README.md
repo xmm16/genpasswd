@@ -10,6 +10,7 @@ simple password generator written in C, originally made by [lilyyllyyllyly](http
 
 - Clang >=18
 - libsodium
+- ncurses
 
 ```
 git clone https://github.com/xmm16/genpasswd
