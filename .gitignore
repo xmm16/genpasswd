@@ -7,11 +7,11 @@
 meson-logs
 meson-private
 
+build/
+
 # Meson Files
 meson_benchmark_setup.dat
 meson_test_setup.dat
-sanitycheckcpp.cc     # C++ specific
-sanitycheckcpp.exe    # C++ specific
 
 # Ninja
 build.ninja
