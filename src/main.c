@@ -8,7 +8,7 @@
 #define BUFFER_SIZE 512
 
 const char *
-__scudo_default_options()
+__scudo_default_options(void)
 {
 	return "dealloc_type_mismatch=true:zero_contents=true:pattern_fill_"
 	       "contents=true:delete_size_mismatch=true:release_to_os_"
