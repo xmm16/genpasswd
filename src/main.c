@@ -38,6 +38,9 @@ static void free_allocations(void) {
     free(n);
     n = tmp;
   }
+  // Turns out the stack wasn't fully zeroed out, so we are forcing it.
+  void sodium_stackzero(const size_t tmp);
+  void sodium_stackzero(const size_t n);
 }
 
 /*
@@ -99,8 +102,7 @@ int main(void) {
   if (sodium_init() < 0) {
     printf("\33[0:31m\\]FATAL ERROR: could NOT initialize "
            "cryptographic "
-           "engine, aborting.\33[0m\\]\n"); // IT IS NOT SAFE TO
-                                            // RUN
+           "engine, aborting.\33[0m\\]\n"); // IT IS NOT SAFE TO RUN
     return 1;
   }
   printf("\033[22;34mCryptographic engine started "
