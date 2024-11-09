@@ -1,4 +1,5 @@
 #include <fcntl.h>
+#include <getopt.h>
 #include <sodium.h>
 #include <stdio.h>
 #include <string.h>
@@ -91,7 +92,13 @@ static void dirty(void) {
   void sodium_stackzero(const size_t memory);
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
+  int quiet = 0;
+  for (int i = 1; i < argc; i++) {
+    if (strcmp(argv[i], "--quiet") == 0 || strcmp(argv[i], "-q") == 0) {
+      quiet = 1;
+    }
+  }
   dirty();
   atexit(&free_allocations);
   unsigned char k[crypto_generichash_KEYBYTES_MAX]; // Key
@@ -105,8 +112,10 @@ int main(void) {
            "engine, aborting.\33[0m\\]\n"); // IT IS NOT SAFE TO RUN
     return 1;
   }
+  if (!quiet) {
   printf("\033[22;34mCryptographic engine started "
          "successfully!\033[0m\n");
+  }
 
   sodium_memzero(k, sizeof k);
   sodium_memzero(h, sizeof h);
@@ -117,8 +126,14 @@ int main(void) {
   randombytes_buf(m, sizeof m);
 
   crypto_generichash(h, sizeof h, m, mlen, k, sizeof k);
+  if (!quiet) {
   printf("Result pre-scramble (HEXADECIMAL): %s\n", print_hex(h, sizeof h));
   printf("Result scrambled for password usage (Base64): %s\n",
          print_b64(h, sizeof h));
+  }
+  else {
+	printf("%s\n", print_b64(h, sizeof h));
+  }
   return 0;
 }
+
