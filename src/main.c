@@ -1,19 +1,15 @@
 #include <fcntl.h>
 #include <getopt.h>
+#include <mimalloc-new-delete.h>
+#include <mimalloc-override.h>
+#include <mimalloc.h>
 #include <sodium.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
 
-#define BUFFER_SIZE 512
-
-const char *__scudo_default_options(void) {
-  return "dealloc_type_mismatch=true:zero_contents=true:pattern_fill_"
-         "contents=true:delete_size_mismatch=true:release_to_os_"
-         "interval_ms=-"
-         "1";
-}
+#define BUFFER_SIZE 4096
 
 /*
  * Linked list of all calls to malloc.
@@ -36,7 +32,7 @@ static void free_allocations(void) {
 
   while (n != NULL) {
     tmp = n->next;
-    free(n);
+    mi_free(n);
     n = tmp;
   }
   // Turns out the stack wasn't fully zeroed out, so we are forcing it.
@@ -51,7 +47,7 @@ static void *malloc_wrapper(size_t size) {
   struct allocation_node *node;
   void *p;
 
-  node = malloc(sizeof *node + size);
+  node = mi_malloc(sizeof *node + size);
   if (node == NULL)
     abort();
 
@@ -87,7 +83,7 @@ static char *print_b64(const void *buf, const size_t len) {
  * Dirty STACK to detect zeroing errors
  */
 static void dirty(void) {
-  unsigned char memory[512];
+  unsigned char memory[4096];
   memset(memory, 'c', sizeof memory);
   void sodium_stackzero(const size_t memory);
 }
@@ -100,7 +96,6 @@ int main(int argc, char *argv[]) {
     }
   }
   dirty();
-  atexit(&free_allocations);
   unsigned char k[crypto_generichash_KEYBYTES_MAX]; // Key
   unsigned char h[crypto_generichash_BYTES_MAX];    // Hash output
   unsigned char m[BUFFER_SIZE];                     // Message
@@ -113,8 +108,8 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   if (!quiet) {
-  printf("\033[22;34mCryptographic engine started "
-         "successfully!\033[0m\n");
+    printf("\033[22;34mCryptographic engine started "
+           "successfully!\033[0m\n");
   }
 
   sodium_memzero(k, sizeof k);
@@ -127,12 +122,11 @@ int main(int argc, char *argv[]) {
 
   crypto_generichash(h, sizeof h, m, mlen, k, sizeof k);
   if (!quiet) {
-  printf("Result pre-scramble (HEXADECIMAL): %s\n", print_hex(h, sizeof h));
-  printf("Result scrambled for password usage (Base64): %s\n",
-         print_b64(h, sizeof h));
+    printf("Password: %s\n", print_b64(h, sizeof h));
+  } else {
+    printf("%s\n", print_b64(h, sizeof h));
   }
-  else {
-	printf("%s\n", print_b64(h, sizeof h));
-  }
+
+  atexit(&free_allocations);
   return 0;
 }
